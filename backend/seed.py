@@ -3,7 +3,8 @@ from app.database import SessionLocal, Base, engine
 from app.seed_helper import run_seed
 
 # Ensure tables are created
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
+
 
 def seed_db():
     db = SessionLocal()
