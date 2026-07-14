@@ -14,9 +14,10 @@ A **production-ready, AI-powered office seat allocation and workspace management
 
 | Resource | URL |
 |----------|-----|
-| 🌐 **Frontend App** | *(Your Vercel Deployment URL)* |
-| 📄 **Swagger API Docs** | *(Your Vercel URL)/docs* |
-| 📚 **ReDoc API Docs** | *(Your Vercel URL)/redoc* |
+| 🌐 **Frontend App** | [https://ethara-ai-sms-wef9.vercel.app](https://ethara-ai-sms-wef9.vercel.app) |
+| ⚙️ **Backend API** | [https://ethara-ai-sms.onrender.com](https://ethara-ai-sms.onrender.com) |
+| 📄 **Swagger API Docs** | [https://ethara-ai-sms.onrender.com/docs](https://ethara-ai-sms.onrender.com/docs) |
+| 📚 **ReDoc API Docs** | [https://ethara-ai-sms.onrender.com/redoc](https://ethara-ai-sms.onrender.com/redoc) |
 | 🐙 **GitHub Repository** | [https://github.com/Nishock/Ethara.ai-SMS](https://github.com/Nishock/Ethara.ai-SMS) |
 
 ---
@@ -188,7 +189,7 @@ This starts:
 | `POST` | `/dashboard/seed` | Seed database with test data |
 | `POST` | `/ai/query` | Natural language AI query |
 
-Full interactive documentation: **`/docs`** (Swagger) or **`/redoc`** (ReDoc)
+Full interactive documentation: **[Swagger UI](https://ethara-ai-sms.onrender.com/docs)** or **[ReDoc](https://ethara-ai-sms.onrender.com/redoc)**
 
 ---
 
@@ -200,6 +201,14 @@ Full interactive documentation: **`/docs`** (Swagger) or **`/redoc`** (ReDoc)
 |-----|-------|
 | `DATABASE_URL` | Your Neon PostgreSQL connection string |
 | `GEMINI_API_KEY` | Your Google Gemini API key (for AI assistant) |
+
+### Live Deployments:
+| Service | Platform | URL |
+|---------|----------|-----|
+| Frontend | Vercel | [https://ethara-ai-sms-wef9.vercel.app](https://ethara-ai-sms-wef9.vercel.app) |
+| Backend API | Render | [https://ethara-ai-sms.onrender.com](https://ethara-ai-sms.onrender.com) |
+| Swagger UI | Render | [https://ethara-ai-sms.onrender.com/docs](https://ethara-ai-sms.onrender.com/docs) |
+| ReDoc UI | Render | [https://ethara-ai-sms.onrender.com/redoc](https://ethara-ai-sms.onrender.com/redoc) |
 
 ### Build Configuration:
 Vercel automatically reads `vercel.json` in the repository root, which:

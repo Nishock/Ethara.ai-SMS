@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./ethara.db
-      # Add API keys if needed
+      - DATABASE_URL=postgresql://neondb_owner:npg_jOL8bCTG9zPy@ep-misty-shape-atfvvp1j-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require
+      # Uncomment to enable AI assistant:
       # - GEMINI_API_KEY=${GEMINI_API_KEY}
       # - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:

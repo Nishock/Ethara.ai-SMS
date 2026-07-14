@@ -6,9 +6,11 @@ This document compile all required deliverables for the submission checklist of 
 
 ## 🔗 Live Links & Repository
 
-- **GitHub Repository:** [https://github.com/Nishock/Ethara.ai-SMS.git](https://github.com/Nishock/Ethara.ai-SMS.git)
-- **Live Deployment Link:** *[Your Vercel Deployment URL, e.g., https://ethara-ai-sms-wef9.vercel.app]*
-- **Live API Swagger Documentation:** *[Your Vercel API URL + /docs, e.g., https://ethara-ai-sms-wef9.vercel.app/docs]*
+- **GitHub Repository:** [https://github.com/Nishock/Ethara.ai-SMS](https://github.com/Nishock/Ethara.ai-SMS)
+- **Frontend Live App (Vercel):** [https://ethara-ai-sms-wef9.vercel.app](https://ethara-ai-sms-wef9.vercel.app)
+- **Backend API (Render):** [https://ethara-ai-sms.onrender.com](https://ethara-ai-sms.onrender.com)
+- **Swagger API Docs:** [https://ethara-ai-sms.onrender.com/docs](https://ethara-ai-sms.onrender.com/docs)
+- **ReDoc API Docs:** [https://ethara-ai-sms.onrender.com/redoc](https://ethara-ai-sms.onrender.com/redoc)
 
 ---
 
