@@ -1,57 +1,140 @@
-# AI Prompts log - Ethara Seat Allocation & Project Mapping System
+# AI_PROMPTS.md — Ethara Workspace Intelligence
 
-This document outlines the detailed prompt flows, technical design decisions, and verification steps implemented throughout the development cycle.
-
----
-
-## 1. Prompt Flow Checklist
-
-### Prompt 1 — System Architecture
-- **Prompt:** *"Design a scalable system architecture for Ethara’s seat allocation and project mapping system, including a React/Vite/TypeScript frontend, a Python FastAPI backend, and a database model. Emphasize containerization, atomic transactional allocations, and high-performance search queries for 5,000+ employees."*
-- **AI Response:** Suggested a clean client-server architecture with Docker containerization. Emphasized using index rules for floor, zone, and project, along with SQLAlchemy ORM for handling transactions.
-
-### Prompt 2 — Database Design & Schema
-- **Prompt:** *"Draft a SQLAlchemy models file in Python with employees, projects, seats, and seat allocations. Emphasize constraints: one employee can have only one active seat, and one seat can have only one active employee. Include columns for employee_code, manager_name, department, role, status, joining_date, and created/updated timestamps."*
-- **What AI Generated Correctly:** Produced tables with standard properties and foreign key relationships.
-- **What AI Generated Incorrectly:** Standard SQL unique constraints on columns like `employee_id` and `seat_id` inside `seat_allocations` would prevent historic records or releasing seats (since a released seat must allow a new occupant).
-- **Manual Fix:** Hand-crafted partial unique indexes using `sqlite_where` and `postgresql_where` filtering by `status == 'Active'` to enforce the uniqueness constraint only for current allocations.
-
-### Prompt 3 — Backend API Development
-- **Prompt:** *"Write FastAPI router modules for Employees, Projects, Seats, Dashboard analytics, and AI queries. Implement full CRUD endpoints, CSV bulk uploads, and response schemas conforming to OpenAPI specs. Support queries by employee_code, status, and project."*
-- **Outcome:** Generated robust endpoints with Pydantic validation. Handled file parses for CSV imports, and automatically populated `employee_code` values (e.g. `EMP-00042`) when omitted.
-
-### Prompt 4 — Seat Allocation Algorithm & Adjacency Heuristics
-- **Prompt:** *"Implement the seat allocation function in Python. The algorithm must locate teammates in the same project, search for adjacent seats in the same bay, fall back to same zone, then same floor, and finally any floor. Enforce a row-level SELECT FOR UPDATE database lock during searches to prevent race conditions."*
-- **Outcome:** Successfully implemented the multi-tiered proximity heuristic. Fallback options also look up department peers if no project teammates are currently seated.
-
-### Prompt 5 — AI Assistant Engine
-- **Prompt:** *"Create an AI assistant query router in Python. If GEMINI_API_KEY is configured, call Gemini to parse the user's natural language query and extract structured intent JSON. If not, use regular expression pattern match fallbacks to support queries like 'Where is Amit sitting?', 'Who sits near Amit?', 'Allocate a seat for Emily', or 'How many available seats are on Floor 3?'."*
-- **Outcome:** Built a unified interface that routes to structured DB queries, executing read/write capabilities (like allocating seats) seamlessly via text commands.
-
-### Prompt 6 — Frontend UI Implementation
-- **Prompt:** *"Build a high-performance React frontend using Tailwind CSS for styling. Include an interactive Seat Map Grid, Dashboard summary cards, Project Footprint charts, Employee Directory, Admin Panel, and a floating AI Chatbot. Apply custom glassmorphism card styles, radial gradients, and micro-animations."*
-- **Outcome:** Designed a dark-theme workspace with harmonized color gradients, responsive layout panels, and loading skeletons.
-
-### Prompt 7 — Testing & Test Suites
-- **Prompt:** *"Create a python test suite using pytest to verify seat allocation, manual override, release rules, double-booking preventions, and project proximity fallbacks. Mock the database session using a temporary SQLite database."*
-- **Outcome:** Created a complete test suite verifying edge cases, priority hierarchies, and index rules.
-
-### Prompt 8 — Debugging & Concurrency Checks
-- **Prompt:** *"We are encountering a 422 validation error when calling auto-allocation with an undefined seat_id. Solve this and ensure JSON serialization strips undefined keys correctly in frontend API calls."*
-- **Manual Fix:** Changed Pydantic schemas to mark `seat_id: Optional[int] = None` and updated the frontend `api.ts` fetch call to construct the payload dynamically.
-
-### Prompt 9 — Deployment & Seeding
-- **Prompt:** *"Generate a seed database helper in Python populating 5,000 employees, 5,500 seats, and 4,000 active allocations. Ensure the script runs in under 3 seconds using bulk inserts."*
-- **Outcome:** Successfully written using SQLAlchemy's `bulk_save_objects` and committed atomically.
-
-### Prompt 10 — Refactoring & Polish
-- **Prompt:** *"Refactor the FastAPI Swagger UI at /docs to match the dark purple glassmorphism aesthetic of the React frontend. Include branded tags, HTTP method color bands, and inline markdown tables."*
-- **Outcome:** Served a customized Swagger page featuring status pills, dark layout cards, and custom CSS styling.
+This document describes all AI prompts used in the Ethara Workspace Intelligence System — both the natural language questions users can ask the AI assistant, and the underlying system prompts powering the AI engine.
 
 ---
 
-## 2. Verification Summary
+## 🧠 AI Assistant Overview
 
-1. **Adjacency & Allocation Rules:** Verified that allocating an employee search queries project teammates first, placing them in the same floor/zone/bay.
-2. **Double Booking:** Attempting to assign an occupied seat raises a validation exception and is blocked by DB unique indexes.
-3. **Database Speed:** Seeding 5,000 employees and 5,500 seats completes in under 2 seconds.
+The AI assistant is built on top of **Google Gemini** (with OpenAI as fallback). It accepts free-form natural language questions from any employee and returns structured, human-readable answers about seat allocations, project assignments, and workspace analytics.
+
+**Endpoint:** `POST /ai/query`
+
+```json
+{
+  "question": "Where is my seat?",
+  "context": "Employee ID: EMP-00123"
+}
+```
+
+---
+
+## 💬 User-Facing Prompts (What Employees Can Ask)
+
+These are the types of natural language queries the AI assistant supports:
+
+### 🪑 Seat Location Queries
+| Prompt | Description |
+|--------|-------------|
+| `"Where is my seat?"` | Finds the allocated desk for the current employee |
+| `"What is seat number F2-B3-42?"` | Returns details about a specific seat number |
+| `"Show all available seats on Floor 3."` | Lists free desks on a specific floor |
+| `"Show all seats in Zone A on Floor 2."` | Filters desks by floor + zone |
+| `"Is there any seat available near Bay 4?"` | Checks proximity-based availability |
+| `"Which seats are in Maintenance right now?"` | Lists all seats with maintenance status |
+
+### 👥 Neighbour & Proximity Queries
+| Prompt | Description |
+|--------|-------------|
+| `"Who is sitting near me?"` | Lists employees in the same bay as the requester |
+| `"Who is my neighbour in Bay 3?"` | Lists everyone in a specific bay |
+| `"Show employees on Floor 2, Zone B."` | Full zone-level roster |
+
+### 🗂️ Project Assignment Queries
+| Prompt | Description |
+|--------|-------------|
+| `"Which project am I assigned to?"` | Returns the project name and manager |
+| `"Who is the manager of Project Talos?"` | Returns project manager info |
+| `"Show all employees in Project Indigo."` | Lists the full team roster for a project |
+| `"How many seats are occupied for Project Talos?"` | Returns project footprint count |
+| `"Which floor does Project Indreed sit on?"` | Floor breakdown for a project |
+
+### 📊 Analytics & Dashboard Queries
+| Prompt | Description |
+|--------|-------------|
+| `"How many seats are available right now?"` | Total available desk count across all floors |
+| `"What is the occupancy rate on Floor 4?"` | Floor-level utilization percentage |
+| `"Which floor has the most empty seats?"` | Identifies the least-utilized floor |
+| `"How many employees are waiting for seat allocation?"` | Count of unallocated employees in the queue |
+| `"What is the total seating capacity?"` | Total seat inventory across all floors |
+
+### ➕ New Employee & Allocation Queries
+| Prompt | Description |
+|--------|-------------|
+| `"Allocate a seat for a new employee joining today."` | Triggers auto-seat allocation workflow |
+| `"Assign employee EMP-04999 to Project Serfy."` | Assigns project to a specific employee |
+| `"Release the seat for employee EMP-00250."` | Releases an active seat allocation |
+
+---
+
+## ⚙️ System Prompt (Internal AI Instructions)
+
+The following is the system prompt injected into the Gemini/OpenAI API call each time a user sends a question. It gives the AI structured workspace context and rules for responding:
+
+```
+You are the Ethara Workspace Intelligence AI Assistant — a smart, helpful system that manages seat allocation, project assignments, and office analytics for Ethara's 5,000+ employee workforce.
+
+You have access to real-time data about:
+- Employee seat allocations across Floors 1-5, Zones A-D, Bays 1-5
+- Project team assignments (49 active projects)
+- Seat status: Available, Occupied, Reserved, Maintenance
+- Employee status: Active (seated), Awaiting Allocation, Inactive
+
+RULES:
+1. Always answer in a clear, friendly, and concise tone.
+2. When listing employees or seats, format them as a numbered list or table.
+3. If asked about a specific employee's seat, return: Floor, Zone, Bay, and Seat Number.
+4. If asked about project assignments, include: Project Name, Manager Name, and Team Size.
+5. If data is not available, say: "I couldn't find that information. Please check with HR Admin."
+6. Never reveal internal SQL queries or database structure details.
+7. If asked to allocate a seat, confirm the action and return the newly assigned Seat Number.
+
+Context you may receive:
+- Current employee's Employee Code (e.g., EMP-00123)
+- Query-specific data fetched from the database for accuracy
+```
+
+---
+
+## 🔄 How the AI Pipeline Works
+
+```
+User types question  
+       ↓  
+Frontend sends POST /ai/query  
+       ↓  
+Backend fetches relevant data from PostgreSQL  
+(e.g., seat count, employee list, project roster)  
+       ↓  
+Data is appended as structured context to the prompt  
+       ↓  
+Gemini Flash / OpenAI GPT-4o processes the enriched prompt  
+       ↓  
+AI returns structured natural language answer  
+       ↓  
+Frontend renders the answer in the chat UI  
+```
+
+---
+
+## 📁 Related Files
+
+| File | Purpose |
+|------|---------|
+| [`backend/app/routers/ai.py`](./backend/app/routers/ai.py) | AI query endpoint implementation |
+| [`frontend/src/components/AIAssistant.tsx`](./frontend/src/components/AIAssistant.tsx) | Chat UI component |
+| [`backend/app/main.py`](./backend/app/main.py) | FastAPI app with API description + tags metadata |
+
+---
+
+## 🔐 API Keys Required
+
+The AI assistant requires the following environment variable to be set:
+
+```env
+# Set ONE of the following in backend/.env
+GEMINI_API_KEY=your-google-gemini-api-key       # Primary (recommended)
+OPENAI_API_KEY=your-openai-api-key               # Fallback
+```
+
+Without an API key, the AI assistant will return a fallback message indicating the AI service is unavailable.

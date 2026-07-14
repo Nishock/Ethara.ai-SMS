@@ -1,90 +1,244 @@
-# Ethara Seat Allocation & Project Mapping System
+# 🚀 Ethara Workspace Intelligence System
 
-A clean, production-ready, and highly scalable workspace management system built for Ethara. The platform enables managing office desk seats, allocating new joiners adjacent to their project team members, viewing interactive floor plans, query logging with an AI assistant, and bulk-importing employee data.
+A **production-ready, AI-powered office seat allocation and workspace management system** for Ethara's 5,000+ employee workforce.
+
+![Status](https://img.shields.io/badge/Status-Live-brightgreen)
+![Backend](https://img.shields.io/badge/Backend-FastAPI%20%2B%20Python-blue)
+![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB)
+![Database](https://img.shields.io/badge/Database-PostgreSQL%20%2F%20Neon-336791)
+![AI](https://img.shields.io/badge/AI-Google%20Gemini-orange)
 
 ---
 
-## 🏗️ System Architecture
+## 🔗 Live Links
 
-```mermaid
-graph TD
-    User([User Browser]) -->|HTTP / JSON| FE[React / Vite Frontend]
-    FE -->|REST API| BE[FastAPI Backend]
-    BE -->|SQLAlchemy ORM| DB[(SQLite / PostgreSQL)]
-    BE -->|Intent Routing| AI[AI Assistant Engine]
-    AI -->|NLP Regex Parser| LocalFallback[Local Keyword Extractor]
-    AI -.->|LLM APIs| APIs[Gemini / OpenAI API]
+| Resource | URL |
+|----------|-----|
+| 🌐 **Frontend App** | *(Your Vercel Deployment URL)* |
+| 📄 **Swagger API Docs** | *(Your Vercel URL)/docs* |
+| 📚 **ReDoc API Docs** | *(Your Vercel URL)/redoc* |
+| 🐙 **GitHub Repository** | [https://github.com/Nishock/Ethara.ai-SMS](https://github.com/Nishock/Ethara.ai-SMS) |
+
+---
+
+## ✨ Features
+
+### 👤 Employee Management
+- Create, view, update, and deactivate employees
+- Auto-generates unique employee codes (`EMP-XXXXX`)
+- Track department, role, joining date, and project assignment
+- Status transitions: `Awaiting Allocation` → `Active` → `Inactive`
+- **Bulk CSV import** with validation and duplicate detection
+
+### 🪑 Seat Allocation Engine
+- **Auto-allocation** with adjacency heuristics — teams sit together (same floor → zone → bay → first available)
+- **Manual allocation** to a specific seat number
+- **Seat release** with full history preserved
+- Seat statuses: `Available`, `Occupied`, `Reserved`, `Maintenance`
+- **Bulk CSV import** for seat layouts
+
+### 🗂️ Project Mapping
+- 49+ active projects with manager assignments
+- Project-based team grouping and floor mapping
+- Project seat footprint analytics
+
+### 📊 Analytics Dashboard
+- Real-time floor utilization charts (Floors 1–5)
+- Project seat footprint breakdown
+- Summary KPIs: total employees, active seats, available seats, utilization %
+
+### 🤖 AI Assistant
+- Natural language queries powered by **Google Gemini**
+- Ask questions like: *"Where is my seat?"*, *"Show all seats on Floor 3"*, *"Who is sitting near me?"*
+- Enriched with real-time database context for accuracy
+
+---
+
+## 🏗️ Architecture
+
+```
+ethara-workspace-intelligence/
+├── frontend/              # React + TypeScript + Vite (UI)
+│   ├── src/
+│   │   ├── components/    # Dashboard, EmployeeDirectory, SeatMap, AIAssistant, etc.
+│   │   └── api.ts         # Typed API client
+│   └── vite.config.ts
+│
+├── backend/               # Python FastAPI (REST API)
+│   ├── app/
+│   │   ├── main.py        # FastAPI app + custom docs + CORS
+│   │   ├── models.py      # SQLAlchemy ORM models
+│   │   ├── schemas.py     # Pydantic request/response schemas
+│   │   ├── database.py    # DB engine + session management
+│   │   └── routers/       # employees, projects, seats, dashboard, ai
+│   ├── seed.py            # Bulk seed script (5,000 employees, 5,500 seats)
+│   └── requirements.txt
+│
+├── api/                   # Vercel serverless entry point
+│   ├── index.py
+│   └── requirements.txt
+│
+├── vercel.json            # Vercel routing + build config
+├── docker-compose.yml     # Local Docker setup
+├── README.md
+└── AI_PROMPTS.md
 ```
 
-### Core Business Rules
-- **One employee, one active seat:** An employee can have at most one active seat allocation. Historic allocations are saved for audits.
-- **One seat, one active employee:** A seat can host at most one active employee. Released seats automatically become `Available`.
-- **Adjacency heuristic:** Allocations prioritize same bay → same zone → same floor → other floors.
-- **Concurrency controls:** The allocation engine uses SELECT FOR UPDATE row-level locking to avoid race conditions.
-
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start (Local)
 
-### Local Development Setup
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
+- PostgreSQL (or use the hosted Neon connection)
 
-#### 1. Backend Service
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Nishock/Ethara.ai-SMS.git
+cd Ethara.ai-SMS
+```
+
+### 2. Backend Setup
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate   # On Windows
-# source .venv/bin/activate  # On macOS/Linux
+.venv\Scripts\activate          # Windows
+source .venv/bin/activate       # macOS/Linux
 
 pip install -r requirements.txt
-python seed.py
-uvicorn app.main:app --reload
 ```
-API docs are available at `http://localhost:8000/docs` (interactive custom dark Swagger).
 
-#### 2. Frontend Service
+### 3. Configure Environment Variables
+Create `backend/.env`:
+```env
+DATABASE_URL=postgresql://neondb_owner:...@ep-...neon.tech/neondb?sslmode=require
+GEMINI_API_KEY=your-gemini-api-key      # Optional: for AI assistant
+```
+
+### 4. Start the Backend
+```bash
+cd backend
+.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+```
+
+### 5. Seed the Database
+```bash
+cd backend
+.venv\Scripts\python seed.py
+```
+
+### 6. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Open `http://localhost:5173` in your browser.
+
+### 7. Open in Browser
+- **Frontend:** http://localhost:5173
+- **Swagger Docs:** http://localhost:8000/docs
+- **ReDoc Docs:** http://localhost:8000/redoc
 
 ---
 
-## 📋 API Endpoint Reference
+## 🐳 Docker Compose (Recommended for Local Full Stack)
 
-| Category | Method | Path | Description |
-|---|---|---|---|
-| **Employees** | `POST` | `/employees/` | Create a new employee |
-| | `GET` | `/employees/` | List and search employees by name/email/code |
-| | `GET` | `/employees/{id}` | Get employee details |
-| | `PUT` | `/employees/{id}` | Update employee profile |
-| | `DELETE`| `/employees/{id}` | Delete employee and release active seat |
-| | `POST` | `/employees/upload-csv` | Bulk import employees from CSV |
-| **Projects** | `POST` | `/projects/` | Create a project |
-| | `GET` | `/projects/` | List all projects |
-| | `GET` | `/projects/{id}/employees` | List all employees on a project |
-| **Seats** | `POST` | `/seats/` | Create a seat configuration |
-| | `GET` | `/seats/` | List seats by floor/zone/status |
-| | `GET` | `/seats/available` | Get all available seats |
-| | `POST` | `/seats/allocate` | Allocate seat (manual or auto) |
-| | `POST` | `/seats/release` | Release seat by employee ID (body param) |
-| | `POST` | `/seats/release/{employee_id}` | Release seat by employee ID (path param) |
-| | `GET` | `/seats/{id}/occupant` | Get employee occupying seat |
-| | `POST` | `/seats/upload-csv` | Bulk import seat layouts from CSV |
-| **Dashboard** | `GET` | `/dashboard/summary` | Aggregated office KPIs |
-| | `GET` | `/dashboard/project-utilization` | Seat allocations per project |
-| | `GET` | `/dashboard/floor-utilization` | Occupancy rates per floor |
-| | `POST` | `/dashboard/seed` | Trigger scale seeding (5,000 employees) |
-| **AI** | `POST` | `/ai/query` | Submit natural language query to chatbot |
+```bash
+docker-compose up --build
+```
+
+This starts:
+- `backend` on port `8000`
+- `frontend` on port `5173`
+- `postgres` on port `5432`
 
 ---
 
-## 🤖 AI Query Command Interface
-The floating AI Assistant chatbot supports these natural language queries:
-- **Seat Lookup:** `"Where is employee EMP-00002 seated?"`
-- **Teammate Finder:** `"Who is sitting near Amit?"` or `"Who sits near me?"`
-- **Floor Availability:** `"Show all available seats on Floor 3."`
-- **Auto Seat Allocator:** `"Allocate a seat for a new employee joining today."`
-- **Office Metrics:** `"Give me an office summary."`
-- **Project Utilization:** `"How many seats are occupied for Project Indigo?"`
+## 🗄️ Database Schema
+
+| Table | Key Fields |
+|-------|-----------|
+| `employees` | `id`, `employee_code`, `name`, `email`, `department`, `role`, `status`, `project_id` |
+| `projects` | `id`, `name`, `description`, `manager_name`, `status` |
+| `seats` | `id`, `floor`, `zone`, `bay`, `seat_number`, `status` |
+| `seat_allocations` | `id`, `employee_id`, `seat_id`, `project_id`, `allocated_at`, `released_at`, `status` |
+
+---
+
+## 📡 API Endpoints Summary
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/employees/` | List employees with filters |
+| `POST` | `/employees/` | Create new employee |
+| `PUT` | `/employees/{id}` | Update employee |
+| `DELETE` | `/employees/{id}` | Deactivate employee |
+| `POST` | `/employees/import/csv` | Bulk CSV import |
+| `GET` | `/projects/` | List all projects |
+| `POST` | `/projects/` | Create project |
+| `GET` | `/seats/` | List seats with filters |
+| `POST` | `/seats/allocate` | Allocate seat (auto or manual) |
+| `POST` | `/seats/{id}/release` | Release seat |
+| `GET` | `/seats/{id}/occupant` | Get current occupant |
+| `POST` | `/seats/import/csv` | Bulk seat CSV import |
+| `GET` | `/dashboard/stats` | Summary KPIs |
+| `GET` | `/dashboard/floor-utilization` | Floor occupancy breakdown |
+| `GET` | `/dashboard/project-footprint` | Project seat counts |
+| `POST` | `/dashboard/seed` | Seed database with test data |
+| `POST` | `/ai/query` | Natural language AI query |
+
+Full interactive documentation: **`/docs`** (Swagger) or **`/redoc`** (ReDoc)
+
+---
+
+## 🌐 Deployment on Vercel
+
+### Required Environment Variables in Vercel:
+
+| Key | Value |
+|-----|-------|
+| `DATABASE_URL` | Your Neon PostgreSQL connection string |
+| `GEMINI_API_KEY` | Your Google Gemini API key (for AI assistant) |
+
+### Build Configuration:
+Vercel automatically reads `vercel.json` in the repository root, which:
+1. Builds the **React frontend** from `frontend/` using Vite
+2. Deploys the **FastAPI backend** as Python serverless functions from `api/`
+3. Routes `/api/*`, `/employees/*`, `/seats/*`, etc. → backend
+4. Routes everything else → frontend static files
+
+---
+
+## 🤖 AI Assistant
+
+The AI assistant supports natural language workspace queries. See [AI_PROMPTS.md](./AI_PROMPTS.md) for the full list of supported prompts and system prompt configuration.
+
+**Example queries:**
+- *"Where is my seat?"*
+- *"Show all available seats on Floor 3."*
+- *"How many employees are in Project Talos?"*
+- *"Who is sitting near me?"*
+- *"Allocate a seat for a new employee joining today."*
+
+---
+
+## 🔧 Debugging Notes
+
+See [`submission_package.md`](./submission_package.md) for detailed debugging and resolution notes on:
+- Python version conflicts (3.14 preview vs 3.11 stable)
+- `EBADPLATFORM` npm build errors on Linux CI
+- SQLite concurrency → PostgreSQL migration
+- Duplicate key constraint errors on re-seeding
+
+---
+
+## 📄 License
+
+MIT License — see [LICENSE](./LICENSE) for details.
+
+---
+
+## 👨‍💻 Built For
+
+Ethara Engineering Team — Workspace Intelligence Assignment, July 2026.

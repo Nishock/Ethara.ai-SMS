@@ -119,9 +119,9 @@ app = FastAPI(
     },
     license_info={"name": "MIT License", "url": "https://opensource.org/licenses/MIT"},
     openapi_tags=TAGS_METADATA,
-    # Disable default Swagger so we serve our custom one at /docs
+    # Disable default Swagger & ReDoc so we serve our custom ones
     docs_url=None,
-    redoc_url="/redoc",
+    redoc_url=None,
 )
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
@@ -644,6 +644,31 @@ def custom_swagger_ui():
     });
   </script>
 </body>
+</html>""", status_code=200)
+
+
+# ─── Custom Dark ReDoc UI ──────────────────────────────────────────────────────
+@app.get("/redoc", include_in_schema=False)
+def custom_redoc_ui():
+    return HTMLResponse(content="""<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ethara API · ReDoc</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <redoc spec-url="/openapi.json"></redoc>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  </body>
 </html>""", status_code=200)
 
 
