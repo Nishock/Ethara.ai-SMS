@@ -59,8 +59,7 @@ A **production-ready** REST API for intelligent office workspace management — 
 This development API does not require authentication. Production deployments should add **OAuth2 / JWT** bearer token middleware.
 
 ### 🔗 Useful Links
-- [Frontend UI](http://localhost:5173) — React SPA
-- [ReDoc Documentation](http://localhost:8000/redoc) — Alternative docs view
+- [ReDoc Documentation](/redoc) — Alternative docs view
 """
 
 TAGS_METADATA = [
@@ -114,7 +113,7 @@ app = FastAPI(
     summary="Office seat allocation, project mapping, and AI-powered workspace analytics.",
     contact={
         "name": "Ethara Engineering",
-        "url": "http://localhost:5173",
+        "url": "https://github.com/ethara-io",
         "email": "engineering@ethara.io",
     },
     license_info={"name": "MIT License", "url": "https://opensource.org/licenses/MIT"},
@@ -616,7 +615,7 @@ def custom_swagger_ui():
       <span class="pill pill-indigo">OAS 3.1</span>
     </div>
     <div class="pill-links">
-      <a href="http://localhost:5173" target="_blank">← Frontend</a>
+      <a href="/" target="_blank">← Home</a>
       <a href="/redoc" target="_blank">ReDoc</a>
       <a href="/openapi.json" target="_blank">JSON Schema</a>
     </div>
@@ -626,8 +625,10 @@ def custom_swagger_ui():
 
   <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
   <script>
+    // Dynamically resolve openapi.json URL so it works on any host (Vercel, Docker, localhost)
+    var specUrl = window.location.origin + "/openapi.json";
     SwaggerUIBundle({
-      url: "/openapi.json",
+      url: specUrl,
       dom_id: '#swagger-ui',
       deepLinking: true,
       presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
@@ -640,6 +641,13 @@ def custom_swagger_ui():
       persistAuthorization: true,
       displayRequestDuration: true,
       filter: true,
+      requestInterceptor: function(request) {
+        // Ensure API calls from Try-It-Out go to the same origin
+        if (request.url.startsWith('/')) {
+          request.url = window.location.origin + request.url;
+        }
+        return request;
+      },
       syntaxHighlight: { activate: true, theme: "monokai" }
     });
   </script>
@@ -666,8 +674,20 @@ def custom_redoc_ui():
     </style>
   </head>
   <body>
-    <redoc spec-url="/openapi.json"></redoc>
+    <div id="redoc-container"></div>
     <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <script>
+      // Dynamically resolve openapi.json URL so it works on any host
+      var specUrl = window.location.origin + "/openapi.json";
+      Redoc.init(specUrl, {
+        scrollYOffset: 0,
+        hideDownloadButton: false,
+        theme: {
+          colors: { primary: { main: '#7c3aed' } },
+          typography: { fontFamily: 'Inter, system-ui, sans-serif' }
+        }
+      }, document.getElementById('redoc-container'));
+    </script>
   </body>
 </html>""", status_code=200)
 

@@ -35,13 +35,6 @@ Frontend renders the human-readable answer in the chat UI
 
 ## 🔑 Environment Variables
 
-```env
-# backend/.env — Set at LEAST ONE of the following
-
-GEMINI_API_KEY=your-google-gemini-api-key      # Primary (recommended, free tier available)
-OPENAI_API_KEY=your-openai-api-key             # Secondary fallback
-```
-
 > If **neither** key is set, the system automatically falls back to a built-in regex-based local parser which handles all 6 intent categories without any external API call.
 
 ---
