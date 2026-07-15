@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "./api";
 import Dashboard from "./components/Dashboard";
 import SeatMap from "./components/SeatMap";
 import EmployeeDirectory from "./components/EmployeeDirectory";
@@ -129,9 +130,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-600 font-medium">
           <span>© 2026 Ethara Workspace Intelligence · Built with FastAPI + React</span>
           <div className="flex items-center gap-4">
-            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer"
+            <a href={`${API_BASE_URL}/docs`} target="_blank" rel="noopener noreferrer"
               className="hover:text-purple-400 transition-colors">API Docs</a>
-            <a href="http://localhost:8000/redoc" target="_blank" rel="noopener noreferrer"
+            <a href={`${API_BASE_URL}/redoc`} target="_blank" rel="noopener noreferrer"
               className="hover:text-purple-400 transition-colors">ReDoc</a>
             <span className="text-slate-700">v1.0.0</span>
           </div>

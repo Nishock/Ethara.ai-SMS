@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (typeof window !== "undefined" && window.location.hostname === "localhost" ? "http://localhost:8000" : "");
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (typeof window !== "undefined" && window.location.hostname === "localhost" ? "http://localhost:8000" : "");
 
 
 export interface Project {
@@ -235,6 +235,15 @@ export const api = {
       body: JSON.stringify({ query }),
     });
     if (!res.ok) throw new Error("AI query failed");
+    return res.json();
+  },
+
+  // Seed Database
+  async seedDatabase(): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/dashboard/seed`, {
+      method: "POST",
+    });
+    if (!res.ok) throw new Error("Database seeding failed");
     return res.json();
   },
 };

@@ -57,9 +57,7 @@ export default function AdminPanel() {
     setMsg("");
     setError("");
     try {
-      const res = await fetch("http://localhost:8000/dashboard/seed", { method: "POST" });
-      if (!res.ok) throw new Error("Database seeding failed");
-      const data = await res.json();
+      const data = await api.seedDatabase();
       setMsg(data.message);
     } catch (err: any) {
       setError(err.message || "Database seeding failed.");
